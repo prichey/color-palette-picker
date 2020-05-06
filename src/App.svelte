@@ -1,28 +1,50 @@
 <script>
-  import palettes from "./500.json";
-  let selectionIds = [];
-  const updateSelections = () => {
-    selectionIds = [...document.getElementsByTagName("input")]
-      .filter(el => el.checked)
-      .map(el => parseInt(el.id));
-    console.log({ selectionIds });
+  import palettes from "./100.json";
+  let selectedIds = [];
+  const handleRowClick = rowId => {
+    if (!selectedIds.includes(rowId)) {
+      selectedIds = [...selectedIds, rowId];
+    } else {
+      selectedIds = selectedIds.filter(id => id !== rowId);
+    }
   };
+
+  $: {
+    selectedIds = selectedIds.sort((a, b) => a - b);
+  }
 </script>
 
 <style>
+  * {
+    box-sizing: border-box;
+    position: relative;
+  }
   :global(body),
-  :global(html),
-  main {
+  :global(html) {
     height: 100vh;
     overflow: hidden;
   }
 
+  :global(body) {
+    padding: 2em;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+  }
+
+  h1 {
+    text-align: center;
+  }
+
   main {
     text-align: center;
-    padding: 1em;
-    max-width: 240px;
+    height: 100%;
+    padding: 0;
     margin: 0 auto;
     overflow: hidden;
+    max-width: 1000px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   span {
@@ -33,23 +55,10 @@
     list-style: none;
   }
 
-  .list,
-  .selections {
-    width: 50%;
-    float: left;
-    position: absolute;
-    top: 0;
+  main > * {
     overflow-y: scroll;
-    height: 100%;
-    padding: 20px 0;
-  }
-
-  .list {
-    left: 0;
-  }
-
-  .selections {
-    right: 0;
+    max-height: 100%;
+    padding: 20px;
   }
 
   li.outer {
@@ -57,6 +66,7 @@
     flex-wrap: none;
     justify-content: center;
     margin-bottom: 25px;
+    align-items: center;
   }
 
   li.inner {
@@ -65,28 +75,22 @@
     height: 50px;
   }
 
-  @media (min-width: 640px) {
-    main {
-      max-width: none;
-    }
+  .list li.outer {
+    cursor: pointer;
   }
 </style>
 
+<h1>color picker!</h1>
 <main>
   <div class="list">
     <h3>Full list</h3>
     <ul class="outer">
       {#each palettes as palette, i}
-        <li class="outer">
-          <div>
-            <label for={i}>#{i + 1}</label>
-            <input
-              type="checkbox"
-              id={i}
-              name={i}
-              on:change={updateSelections} />
+        <li class="outer" on:click={() => handleRowClick(i)}>
+          <div class="label">
+            <span>#{i + 1}</span>
           </div>
-          <ul class="inner">
+          <ul class="inner palette">
             {#each palette as color}
               <li class="inner" style={`background-color: ${color}`} />
             {/each}
@@ -95,15 +99,16 @@
       {/each}
     </ul>
   </div>
+
   <div class="selections">
     <h3>Selections</h3>
     <ul>
-      {#each selectionIds as id}
+      {#each selectedIds as id}
         <li class="outer">
-          <div>
-            <label>#{id + 1}</label>
+          <div class="label">
+            <span>#{id + 1}</span>
           </div>
-          <ul class="inner">
+          <ul class="inner palette">
             {#each palettes[id] as color}
               <li class="inner" style={`background-color: ${color}`} />
             {/each}
