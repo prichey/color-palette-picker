@@ -1,5 +1,5 @@
 <script>
-  import palettes from "./100.json";
+  import palettes from "./500.json";
   let selectedIds = [];
   const handleRowClick = rowId => {
     if (!selectedIds.includes(rowId)) {
